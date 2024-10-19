@@ -30,7 +30,6 @@ Clone the repository:
    ./network-script.sh
    ```
 <hr><hr>
-Automatize your Backups ;)
 
 You can use, download or modify this script ;)
 
