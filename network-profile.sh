@@ -1,7 +1,16 @@
 #!/bin/bash
 # Limpiamos la pantalla
 clear
-
+echo "------------------------------------------------------------------------------------------------------------------------"
+echo "------------------------------------------------------------------------------------------------------------------------"
+echo " ██████╗ ██████╗  ██████╗ ███████╗██╗██╗     ███████╗    ███╗   ██╗███████╗████████╗██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗ "
+echo " ██╔══██╗██╔══██╗██╔═══██╗██╔════╝██║██║     ██╔════╝    ████╗  ██║██╔════╝╚══██╔══╝██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝ "
+echo " ██████╔╝██████╔╝██║   ██║█████╗  ██║██║     █████╗      ██╔██╗ ██║█████╗     ██║   ██║ █╗ ██║██║   ██║██████╔╝█████╔╝  "
+echo " ██╔═══╝ ██╔══██╗██║   ██║██╔══╝  ██║██║     ██╔══╝      ██║╚██╗██║██╔══╝     ██║   ██║███╗██║██║   ██║██╔══██╗██╔═██╗  "
+echo " ██║     ██║  ██║╚██████╔╝██║     ██║███████╗███████╗    ██║ ╚████║███████╗   ██║   ╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗ "
+echo " ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚══════╝    ╚═╝  ╚═══╝╚══════╝   ╚═╝    ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ "
+echo "------------------------------------------------------------------------------------------------------------------------"
+echo "------------------------------------------------------------------------------------------------------------------------"
 # Obtener la interfaz de red cableada
 INTERFAZ_CABLEADA=$(ip link show | grep -E "^[0-9]+: (en|eth)" | awk -F': ' '{print $2}' | head -n 1)
 
@@ -25,8 +34,9 @@ echo "--------------------------------------"
 echo "¿Qué interfaz deseas configurar?"
 echo "1) Cableada ($INTERFAZ_CABLEADA)"
 echo "2) Inalámbrica ($INTERFAZ_INALAMBRICA)"
+echo "3) Salir del Script"
 echo "--------------------------------------"
-read -p "Elige una opción (1 o 2): " OPCION
+read -p "Elige una opción (1, 2 o 3): " OPCION
 
 # Comprobar si se han pasado suficientes argumentos (4: IP, MASCARA, PUERTA_DE_ENLACE, DNS)
 if [ "$OPCION" -eq 1 ] || [ "$OPCION" -eq 3 ]; then
@@ -157,9 +167,5 @@ case $OPCION in
             echo "No se encontró ninguna interfaz inalámbrica."
             exit 1
         fi
-exit
-        ;;
-
-# Sugerencia adicional para DNS persistente
-echo "Nota: Si usas systemd-resolved, esta configuración de DNS puede ser temporal."
-echo "Considera editar /etc/systemd/resolved.conf o usar netplan para configuraciones persistentes."
+	;;
+esac
