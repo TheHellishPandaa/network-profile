@@ -21,6 +21,7 @@ echo "Interfaz cableada detectada: $INTERFAZ_CABLEADA"
 echo "Interfaz inalámbrica detectada: $INTERFAZ_INALAMBRICA"
 
 # Preguntar al usuario qué interfaz desea configurar
+echo "--------------------------------------"
 echo "¿Qué interfaz deseas configurar?"
 echo "1) Cableada ($INTERFAZ_CABLEADA)"
 echo "2) Inalámbrica ($INTERFAZ_INALAMBRICA)"
