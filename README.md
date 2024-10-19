@@ -9,7 +9,7 @@ Clone the repository:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/TheHellishPandaa/network-script.git
+   gh repo clone TheHellishPandaa/network-profile
    ```
 
 2. **Navigate to the script's directory**:
