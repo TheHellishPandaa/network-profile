@@ -34,5 +34,7 @@ Clone the repository:
 You can use, download or modify this script ;)
 
 
-Bash script that creates a network profile on Linux, setting up a specific IP address, netmask, gateway, and DNS server. This script is designed to be run on Linux distributions that use ip and systemd for network management, such as Ubuntu 18.04 and later. This script is designed to configure network interfaces (both wired and wireless) on a Linux-based system. It setup either a wired or wireless connection based on the user's choice. This is not final version.
+Bash script that creates a network profile on Linux, setting up a specific IP address, netmask, gateway, and DNS server. This script is designed to be run on Linux distributions that use ip and systemd for network management, such as Ubuntu 18.04 and later. This script is designed to configure network interfaces (both wired and wireless) on a Linux-based system. It setup either a wired or wireless connection based on the user's choice. 
+
+<strong>This is not final version.</strong>
 
