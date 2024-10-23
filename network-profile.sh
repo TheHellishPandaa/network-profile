@@ -1,6 +1,7 @@
 #!/bin/bash
 # Limpiamos la pantalla
 clear
+
 echo "------------------------------------------------------------------------------------------------------------------------"
 echo "------------------------------------------------------------------------------------------------------------------------"
 echo " ██████╗ ██████╗  ██████╗ ███████╗██╗██╗     ███████╗    ███╗   ██╗███████╗████████╗██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗ "
@@ -11,6 +12,7 @@ echo " ██║     ██║  ██║╚██████╔╝██║   
 echo " ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚══════╝    ╚═╝  ╚═══╝╚══════╝   ╚═╝    ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ "
 echo "------------------------------------------------------------------------------------------------------------------------"
 echo "------------------------------------------------------------------------------------------------------------------------"
+
 # Obtener la interfaz de red cableada
 INTERFAZ_CABLEADA=$(ip link show | grep -E "^[0-9]+: (en|eth)" | awk -F': ' '{print $2}' | head -n 1)
 
@@ -34,23 +36,23 @@ echo "--------------------------------------"
 echo "¿Qué interfaz deseas configurar?"
 echo "1) Cableada ($INTERFAZ_CABLEADA)"
 echo "2) Inalámbrica ($INTERFAZ_INALAMBRICA)"
-echo "3) Salir del Script"
+echo "3) Configurar DNS"
+echo "4) Salir del Script"
 echo "--------------------------------------"
-read -p "Elige una opción (1, 2 o 3): " OPCION
+read -p "Elige una opción (1, 2, 3 o 4): " OPCION
 
-# Comprobar si se han pasado suficientes argumentos (4: IP, MASCARA, PUERTA_DE_ENLACE, DNS)
-if [ "$OPCION" -eq 1 ] || [ "$OPCION" -eq 3 ]; then
-    if [ "$#" -ne 4 ]; then
-        echo "Uso para red cableada: $0 <IP> <MASCARA_CIDR> <PUERTA_DE_ENLACE> <DNS>"
-        echo "Ejemplo: $0 192.168.1.100 24 192.168.1.1 8.8.8.8"
-        echo "Nota: La máscara debe estar en formato CIDR (por ejemplo, 24 para 255.255.255.0)"
+# Preguntar por la configuración de red si se elige la interfaz cableada
+if [ "$OPCION" -eq 1 ]; then
+    if [ -n "$INTERFAZ_CABLEADA" ]; then
+        # Preguntar al usuario por los parámetros de configuración
+        read -p "Introduce la dirección IP: (Si es por DHCP no introduzca nada) " IP
+        read -p "Introduce la máscara de subred (en formato CIDR, ej. 24  paara 255.255.255.0): " MASCARA
+        read -p "Introduce la puerta de enlace: (Si es por DHCP no introduzca nada " PUERTA_DE_ENLACE
+        read -p "Introduce los servidores DNS (separados por espacio): " DNS
+    else
+        echo "No se encontró ninguna interfaz cableada."
         exit 1
     fi
-
-    IP=$1
-    MASCARA=$2
-    PUERTA_DE_ENLACE=$3
-    DNS=$4
 fi
 
 # Función para configurar la interfaz de red cableada
@@ -80,59 +82,20 @@ configurar_interfaz() {
 # Función para configurar la red inalámbrica
 configurar_wifi() {
     local INTERFAZ=$1
-    read -p "Introduce el SSID de la red WiFi: " SSID
-    echo "Tipos de encriptación: "
-    echo "1) WPA/WPA2"
-    echo "2) WEP"
-    echo "3) Abierta (sin cifrado)"
-    read -p "Elige el tipo de encriptación (1, 2 o 3): " ENCRIPTADO
 
-    case $ENCRIPTADO in
-        1)
-            ENCRYPTION_TYPE="WPA-PSK"
-            read -sp "Introduce la contraseña del WiFi: " WIFI_PASSWORD
-            echo
-            ;;
-        2)
-            ENCRYPTION_TYPE="WEP"
-            read -sp "Introduce la contraseña del WiFi: " WIFI_PASSWORD
-            echo
-            ;;
-        3)
-            ENCRYPTION_TYPE="NONE"
-            ;;
-        *)
-            echo "Opción de encriptación no válida."
-            exit 1
-            ;;
-    esac
-
-    # Preguntar por IP, máscara, puerta de enlace y DNS para la interfaz WiFi
-    read -p "Introduce la IP estática para la red WiFi: (Si es por DHCP no introduzca nada) " IP_WIFI
-    read -p "Introduce la máscara de red (en formato CIDR) (Si es por DHCP no introduzca nada) : " MASCARA_WIFI
-    read -p "Introduce la puerta de enlace (gateway) para la red WiFi (Si es por DHCP no introduzca nada): " GATEWAY_WIFI
-    read -p "Introduce el servidor DNS para la red WiFi (Si es por DHCP no introduzca nada): " DNS_WIFI
-
-    # Crear archivo de configuración de wpa_supplicant
-    WPA_CONF="/etc/wpa_supplicant/wpa_supplicant.conf"
-    sudo bash -c "cat > $WPA_CONF" <<EOL
-network={
-    ssid="$SSID"
-    key_mgmt=WPA-PSK
-EOL
-
-    if [ "$ENCRYPTION_TYPE" == "WPA-PSK" ]; then
-        sudo bash -c "echo '    psk=\"$WIFI_PASSWORD\"' >> $WPA_CONF"
-    elif [ "$ENCRYPTION_TYPE" == "WEP" ]; then
-        sudo bash -c "echo '    wep_key0=\"$WIFI_PASSWORD\"' >> $WPA_CONF"
-        sudo bash -c "echo '    auth_alg=OPEN' >> $WPA_CONF"
+ if [ -n "$INTERFAZ_INALAMBRICA" ]; then
+        # Preguntar al usuario por los parámetros de configuración
+        read -p "Introduce la dirección IP: (Si es por DHCP no introduzca nada) " IP_WIFI
+        read -p "Introduce la máscara de subred (en formato CIDR, ej. 24  paara 255.255.255.0): " MASCARA_WIFI
+        read -p "Introduce la puerta de enlace: (Si es por DHCP no introduzca nada " GATEWAY_WIFI
+        read -p "Introduce los servidores DNS (separados por espacio): " DNS_WIFI
+    else
+        echo "No se encontró ninguna interfaz cableada."
+        exit 1
     fi
-
-    sudo bash -c "echo '}' >> $WPA_CONF"
-
     # Levantar la interfaz inalámbrica y conectarse
     sudo ip link set $INTERFAZ up
-    sudo wpa_supplicant -B -i $INTERFAZ -c $WPA_CONF
+     #sudo wpa_supplicant -B -i $INTERFAZ -c $WPA_CONF
     sudo dhclient $INTERFAZ  # Obtener la IP vía DHCP si es necesario
 
     # Configurar la IP estática para la interfaz WiFi
@@ -150,7 +113,7 @@ EOL
 
 # Configurar la interfaz según la opción elegida
 case $OPCION in
-    1)
+       1)
         # Configurar solo la interfaz cableada
         if [ -n "$INTERFAZ_CABLEADA" ]; then
             configurar_interfaz $INTERFAZ_CABLEADA $IP $MASCARA $PUERTA_DE_ENLACE $DNS
@@ -159,7 +122,7 @@ case $OPCION in
             exit 1
         fi
         ;;
-    2)
+ 2)
         # Configurar solo la interfaz inalámbrica
         if [ -n "$INTERFAZ_INALAMBRICA" ]; then
             configurar_wifi $INTERFAZ_INALAMBRICA
@@ -167,5 +130,31 @@ case $OPCION in
             echo "No se encontró ninguna interfaz inalámbrica."
             exit 1
         fi
+	;;
+3)
+	#Opcion 3 Configurar DNS
+	if [ -n "$OPCION" ]; then
+	echo "-----------------"
+	echo "Configuracion DNS"
+	echo "-----------------"
+	sudo nano /etc/resolv.conf
+	fi
+	;;
+4)
+	#Opcion 4 salir del script
+	if [ -n "$OPCION" ]; then
+		echo "-------------------"
+		echo "Saliendo del script"
+		echo "-------------------"
+		exit 1
+	else
+		echo "Saliendo del script"
+	fi
+	;;
+
+*)
+        echo "Opción no válida"
+        echo "Saliendo del script"
+	exit 1
 	;;
 esac
